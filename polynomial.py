@@ -13,6 +13,7 @@ class Polynomial:
 
         if isinstance(obj, list) and (obj != []) and isinstance(obj[0], int):
             self.coeffs = obj.copy()
+            self.__trim()
             return
 
         if isinstance(obj, tuple) and (obj != ()):
@@ -23,6 +24,7 @@ class Polynomial:
                     is_polynomial = False
                     break
                 self.coeffs.append(coeff)
+            self.__trim()
             if is_polynomial:
                 return
 
@@ -39,24 +41,24 @@ class Polynomial:
         :param obj: int, Polynomial
         :return: Polynomial
         """
-        result = Polynomial(self.coeffs.copy())
+        result = self.coeffs.copy()
 
         if isinstance(obj, int):
-            result.coeffs[len(result.coeffs) - 1] += obj
-            return result
+            result[-1] += obj
+            return Polynomial(result)
 
         if isinstance(obj, Polynomial):
-            coeffs_diff = len(result.coeffs) - len(obj.coeffs)
+            coeffs_diff = len(result) - len(obj.coeffs)
 
-            objs = obj.coeffs.copy()
+            objs_coeffs = obj.coeffs.copy()
             if coeffs_diff > 0:
-                objs = [0] * coeffs_diff + objs.copy()
+                objs_coeffs = ([0] * abs(coeffs_diff)) + objs_coeffs.copy()
             if coeffs_diff < 0:
-                result = Polynomial([0] * coeffs_diff + result.coeffs.copy())
+                result = ([0] * abs(coeffs_diff)) + result.copy()
 
-            for index in range(len(result.coeffs)):
-                result.coeffs[index] += objs[index]
-            return result
+            for index in range(len(result)):
+                result[index] += objs_coeffs[index]
+            return Polynomial(result)
 
         raise TypeError(f"Polynomial: Wrong second addition argument type: {type(obj)}")
 
@@ -67,24 +69,24 @@ class Polynomial:
         :param obj: int, Polynomial
         :return: Polynomial
         """
-        result = Polynomial(self.coeffs.copy())
+        result = self.coeffs.copy()
 
         if isinstance(obj, int):
-            result.coeffs[len(result.coeffs) - 1] -= obj
-            return result
+            result[-1] -= obj
+            return Polynomial(result)
 
         if isinstance(obj, Polynomial):
-            coeffs_diff = len(result.coeffs) - len(obj.coeffs)
+            coeffs_diff = len(result) - len(obj.coeffs)
 
-            objs = obj.coeffs.copy()
+            objs_coeffs = obj.coeffs.copy()
             if coeffs_diff > 0:
-                objs = [0] * coeffs_diff + objs.copy()
+                objs_coeffs = ([0] * abs(coeffs_diff)) + objs_coeffs.copy()
             if coeffs_diff < 0:
-                result = Polynomial([0] * coeffs_diff + result.coeffs.copy())
+                result = ([0] * abs(coeffs_diff)) + result.copy()
 
-            for index in range(len(result.coeffs)):
-                result.coeffs[index] -= objs[index]
-            return result
+            for index in range(len(result)):
+                result[index] -= objs_coeffs[index]
+            return Polynomial(result)
 
         raise TypeError(f"Polynomial: Wrong second subtraction argument type: {type(obj)}")
 
@@ -99,15 +101,17 @@ class Polynomial:
             result = Polynomial(self.coeffs.copy())
             for index in range(len(result.coeffs)):
                 result.coeffs[index] *= obj
+            result.__trim()
             return result
 
         if isinstance(obj, Polynomial):
             shift = (len(obj.coeffs) - 1)
-            result = Polynomial([0] * (shift + len(self.coeffs)))
+            mul_coeffs = [0] * (shift + len(self.coeffs))
 
             for obj_index in range(len(obj.coeffs)):
                 for self_index in range(len(self.coeffs)):
-                    result.coeffs[self_index + obj_index] += self.coeffs[self_index] * obj.coeffs[obj_index]
+                    mul_coeffs[self_index + obj_index] += self.coeffs[self_index] * obj.coeffs[obj_index]
+            result = Polynomial(mul_coeffs)
             return result
 
         raise TypeError(f"Polynomial: Wrong second multiplication argument type: {type(obj)}")
@@ -227,9 +231,9 @@ class Polynomial:
             if coeff == 0:
                 continue
 
-            sign = '+' if (coeff > 0) and (index != 0) else '-'
+            sign = '-' if (coeff < 0) else '+' if (index > 0) else ''
             coeff = abs(coeff) if (abs(coeff) != 1) or (index == last_index) else ''
-            power = f"^{last_index - index}" if (last_index - index > 1) else ''
+            power = f"^{last_index - index}" if (index < last_index - 1) else ''
             variable = 'x' if (index < last_index) else ''
 
             result += f"{sign}{coeff}{variable}{power}"
@@ -251,3 +255,21 @@ class Polynomial:
         :return: Polynomial
         """
         return Polynomial(self.coeffs.copy())
+
+    def __trim(self):
+        """
+        Removes non-significant zeros from the self.
+
+        :return: None
+        """
+        index = 0
+        last_index = len(self.coeffs) - 1
+        while (index < last_index) and (self.coeffs[index] == 0):
+            index += 1
+
+        result = list()
+        while index <= last_index:
+            result.append(self.coeffs[index])
+            index += 1
+
+        self.coeffs = result
