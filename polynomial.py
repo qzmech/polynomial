@@ -13,7 +13,7 @@ class Polynomial:
 
         if obj and isinstance(obj, list) and isinstance(obj[0], int):
             self.coeffs = obj.copy()
-            self.__trim()
+            self.__trim_zeroes()
             return
 
         if obj and isinstance(obj, tuple):
@@ -25,7 +25,7 @@ class Polynomial:
                     break
                 self.coeffs.append(coeff)
             if valid:
-                self.__trim()
+                self.__trim_zeroes()
                 return
 
         if isinstance(obj, Polynomial):
@@ -345,7 +345,7 @@ class Polynomial:
         if not isinstance(self.coeffs, list) or not isinstance(self.coeffs[0], int):
             raise AttributeError(f"Polynomial: Self coeffs is not valid: {type(self.coeffs)})")
 
-    def __trim(self):
+    def __trim_zeroes(self):
         """
         Removes non-significant zeros from the self.
 
