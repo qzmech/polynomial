@@ -11,21 +11,21 @@ class Polynomial:
             self.coeffs = [obj]
             return
 
-        if isinstance(obj, list) and (obj != []) and isinstance(obj[0], int):
+        if obj and isinstance(obj, list) and isinstance(obj[0], int):
             self.coeffs = obj.copy()
             self.__trim()
             return
 
-        if isinstance(obj, tuple) and (obj != ()):
-            is_polynomial = True
+        if obj and isinstance(obj, tuple):
+            valid = True
             self.coeffs = list()
             for coeff in obj:
                 if not isinstance(coeff, int):
-                    is_polynomial = False
+                    valid = False
                     break
                 self.coeffs.append(coeff)
-            self.__trim()
-            if is_polynomial:
+            if valid:
+                self.__trim()
                 return
 
         if isinstance(obj, Polynomial):
@@ -34,190 +34,244 @@ class Polynomial:
 
         raise TypeError(f"Polynomial: Wrong initial argument: {obj}")
 
+    @staticmethod
+    def __algorithm_add(first, second):
+        """
+        Returns a Polynomial result from an addition of the self and obj.
+
+        :param first: int, Polynomial
+        :param second: int, Polynomial
+        :return: Polynomial
+        """
+        if not isinstance(first, (int, Polynomial)):
+            raise TypeError(f"Polynomial: Wrong first addition argument type: {type(first)}")
+
+        if not isinstance(second, (int, Polynomial)):
+            raise TypeError(f"Polynomial: Wrong second addition argument type: {type(second)}")
+
+        first_coeffs = Polynomial(first).coeffs
+        second_coeffs = Polynomial(second).coeffs
+
+        coeffs_diff = len(first_coeffs) - len(second_coeffs)
+
+        if coeffs_diff < 0:
+            first_coeffs = ([0] * abs(coeffs_diff)) + first_coeffs
+        if coeffs_diff > 0:
+            second_coeffs = ([0] * abs(coeffs_diff)) + second_coeffs
+
+        for index in range(len(first_coeffs)):
+            second_coeff = second_coeffs[index]
+            if second_coeff != 0:
+                first_coeffs[index] += second_coeff
+        return Polynomial(first_coeffs)
+
+    @staticmethod
+    def __algorithm_sub(first, second):
+        """
+        Returns a Polynomial result from a subtraction of the self and obj.
+
+        :param first: int, Polynomial
+        :param second: int, Polynomial
+        :return: Polynomial
+        """
+        if not isinstance(first, (int, Polynomial)):
+            raise TypeError(f"Polynomial: Wrong first addition argument type: {type(first)}")
+
+        if not isinstance(second, (int, Polynomial)):
+            raise TypeError(f"Polynomial: Wrong second addition argument type: {type(second)}")
+
+        first_coeffs = Polynomial(first).coeffs
+        second_coeffs = Polynomial(second).coeffs
+
+        coeffs_diff = len(first_coeffs) - len(second_coeffs)
+
+        if coeffs_diff < 0:
+            first_coeffs = ([0] * abs(coeffs_diff)) + first_coeffs
+        if coeffs_diff > 0:
+            second_coeffs = ([0] * abs(coeffs_diff)) + second_coeffs
+
+        for index in range(len(first_coeffs)):
+            second_coeff = second_coeffs[index]
+            if second_coeff != 0:
+                first_coeffs[index] -= second_coeff
+        return Polynomial(first_coeffs)
+
+    @staticmethod
+    def __algorithm_mul(first, second):
+        """
+        Returns a Polynomial result from a multiplication of the self and obj.
+
+        :param first: int, Polynomial
+        :param second: int, Polynomial
+        :return: Polynomial
+        """
+        if not isinstance(first, (int, Polynomial)):
+            raise TypeError(f"Polynomial: Wrong first addition argument type: {type(first)}")
+
+        if not isinstance(second, (int, Polynomial)):
+            raise TypeError(f"Polynomial: Wrong second addition argument type: {type(second)}")
+
+        first_coeffs = Polynomial(first).coeffs
+        second_coeffs = Polynomial(second).coeffs
+
+        result_power_extension = (len(second_coeffs) - 1)
+        mul_coeffs = [0] * (result_power_extension + len(first_coeffs))
+
+        for second_index in range(len(second_coeffs)):
+            for first_index in range(len(first_coeffs)):
+                mul_coeffs[first_index + second_index] += first_coeffs[first_index] * second_coeffs[second_index]
+        result = Polynomial(mul_coeffs)
+        return result
+
     def add(self, obj):
         """
-        Returns summa of self and other (int or Polynomial instance).
+        Returns a Polynomial result from an addition of the self and obj.
 
         :param obj: int, Polynomial
         :return: Polynomial
         """
-        result = self.coeffs.copy()
+        self.__self_validate()
 
-        if isinstance(obj, int):
-            result[-1] += obj
-            return Polynomial(result)
-
-        if isinstance(obj, Polynomial):
-            coeffs_diff = len(result) - len(obj.coeffs)
-
-            objs_coeffs = obj.coeffs.copy()
-            if coeffs_diff > 0:
-                objs_coeffs = ([0] * abs(coeffs_diff)) + objs_coeffs.copy()
-            if coeffs_diff < 0:
-                result = ([0] * abs(coeffs_diff)) + result.copy()
-
-            for index in range(len(result)):
-                result[index] += objs_coeffs[index]
-            return Polynomial(result)
-
-        raise TypeError(f"Polynomial: Wrong second addition argument type: {type(obj)}")
+        self.coeffs = Polynomial.__algorithm_add(self, obj).coeffs
 
     def sub(self, obj):
         """
-        Returns subtraction of self and other (int or Polynomial instance).
+        Returns a Polynomial result from a subtraction of the self and obj.
 
         :param obj: int, Polynomial
         :return: Polynomial
         """
-        result = self.coeffs.copy()
+        self.__self_validate()
 
-        if isinstance(obj, int):
-            result[-1] -= obj
-            return Polynomial(result)
-
-        if isinstance(obj, Polynomial):
-            coeffs_diff = len(result) - len(obj.coeffs)
-
-            objs_coeffs = obj.coeffs.copy()
-            if coeffs_diff > 0:
-                objs_coeffs = ([0] * abs(coeffs_diff)) + objs_coeffs.copy()
-            if coeffs_diff < 0:
-                result = ([0] * abs(coeffs_diff)) + result.copy()
-
-            for index in range(len(result)):
-                result[index] -= objs_coeffs[index]
-            return Polynomial(result)
-
-        raise TypeError(f"Polynomial: Wrong second subtraction argument type: {type(obj)}")
+        self.coeffs = Polynomial.__algorithm_sub(self, obj).coeffs
 
     def mul(self, obj):
         """
-        Returns multiplication of self and other (int or Polynomial instance).
+        Returns a Polynomial result from a multiplication of the self and obj.
 
         :param obj: int, Polynomial
         :return: Polynomial
         """
-        if isinstance(obj, int):
-            result = Polynomial(self.coeffs.copy())
-            for index in range(len(result.coeffs)):
-                result.coeffs[index] *= obj
-            result.__trim()
-            return result
+        self.__self_validate()
 
-        if isinstance(obj, Polynomial):
-            shift = (len(obj.coeffs) - 1)
-            mul_coeffs = [0] * (shift + len(self.coeffs))
+        self.coeffs = Polynomial.__algorithm_mul(self, obj).coeffs
 
-            for obj_index in range(len(obj.coeffs)):
-                for self_index in range(len(self.coeffs)):
-                    mul_coeffs[self_index + obj_index] += self.coeffs[self_index] * obj.coeffs[obj_index]
-            result = Polynomial(mul_coeffs)
-            return result
+    def __add__(self, obj):
+        """
+        Returns a Polynomial result from a multiplication of the self and obj.
 
-        raise TypeError(f"Polynomial: Wrong second multiplication argument type: {type(obj)}")
+        :param obj: int, Polynomial
+        :return: Polynomial
+        """
+        self.__self_validate()
+
+        return Polynomial.__algorithm_add(self, obj)
+
+    def __sub__(self, obj):
+        """
+        Returns a Polynomial result from a subtraction of the self and obj.
+
+        :param obj: int, Polynomial
+        :return: Polynomial
+        """
+        self.__self_validate()
+
+        return Polynomial.__algorithm_sub(self, obj)
+
+    def __mul__(self, obj):
+        """
+        Returns a Polynomial result from a multiplication of the self and obj.
+
+        :param obj: int, Polynomial
+        :return: Polynomial
+        """
+        self.__self_validate()
+
+        return Polynomial.__algorithm_mul(self, obj)
+
+    def __radd__(self, obj):
+        """
+        Returns a Polynomial result from an addition of obj and the self.
+
+        :param obj: int, Polynomial
+        :return: Polynomial
+        """
+        self.__self_validate()
+
+        return Polynomial.__algorithm_add(self, obj)
+
+    def __rsub__(self, obj):
+        """
+        Returns a Polynomial result from a subtraction of obj and the self.
+
+        :param obj: int, Polynomial
+        :return: Polynomial
+        """
+        self.__self_validate()
+
+        return - Polynomial.__algorithm_sub(self, obj)
+
+    def __rmul__(self, obj):
+        """
+        Returns a Polynomial result from a multiplication of obj and the self.
+
+        :param obj: int, Polynomial
+        :return: Polynomial
+        """
+        self.__self_validate()
+
+        return Polynomial.__algorithm_mul(self, obj)
+
+    def __neg__(self):
+        """
+        Returns the inverted signs of the eigenvalues.
+
+        :return: bool
+        """
+        self.__self_validate()
+
+        result = Polynomial(self.coeffs.copy())
+        for index in range(len(result.coeffs)):
+            result.coeffs[index] = - result.coeffs[index]
+
+        return result
 
     def cmp(self, obj):
         """
-        Returns bool for comparison of self and obj (int or Polynomial instance).
+        Returns a boolean from a comparison of the self and obj.
 
         :param obj: int, Polynomial
         :return: bool
         """
+        self.__self_validate()
+
         if isinstance(obj, int):
-            return (len(self.coeffs) == 1) and (self.coeffs[0] == obj)
+            return (len(self.coeffs) == 1) and (self.coeffs == [obj])
 
         if isinstance(obj, Polynomial):
-            if len(self.coeffs) != len(obj.coeffs):
-                return False
+            obj.__self_validate()
 
-            for index in range(len(self.coeffs)):
-                if self.coeffs[index] != obj.coeffs[index]:
-                    return False
-            return True
+            return self.coeffs == obj.coeffs
 
         raise TypeError(f"Polynomial: Wrong comparison argument type: {type(obj)}")
 
-    def __add__(self, obj):
-        """
-        Returns summa of self and other (int or Polynomial instance).
-
-        :param obj: int, Polynomial
-        :return: Polynomial
-        """
-        return self.add(obj)
-
-    def __sub__(self, obj):
-        """
-        Returns subtraction of self and other (int or Polynomial instance).
-
-        :param obj: int, Polynomial
-        :return: Polynomial
-        """
-        return self.sub(obj)
-
-    def __mul__(self, obj):
-        """
-        Returns multiplication of self and other (int or Polynomial instance).
-
-        :param obj: int, Polynomial
-        :return: Polynomial
-        """
-        return self.mul(obj)
-
     def __eq__(self, obj):
         """
-        Returns bool for comparison of self and obj (int or Polynomial instance).
+        Returns a boolean from a comparison of the self and obj.
 
         :param obj: int, Polynomial
         :return: bool
         """
         return self.cmp(obj)
 
-    def __radd__(self, obj):
-        """
-        Returns reverse summa of self and other (int or Polynomial instance).
-
-        :param obj: int, Polynomial
-        :return: Polynomial
-        """
-        return self.add(obj)
-
-    def __rsub__(self, obj):
-        """
-        Returns reverse subtraction of self and other (int or Polynomial instance).
-
-        :param obj: int, Polynomial
-        :return: Polynomial
-        """
-        return -self.sub(obj)
-
-    def __rmul__(self, obj):
-        """
-        Returns reverse multiplication of self and other (int or Polynomial instance).
-
-        :param obj: int, Polynomial
-        :return: Polynomial
-        """
-        return self.mul(obj)
-
-    def __neg__(self):
-        """
-        Returns negative self.
-
-        :return: bool
-        """
-        result = Polynomial(self.coeffs.copy())
-        for index in range(len(result.coeffs)):
-            result.coeffs[index] = -result.coeffs[index]
-
-        return result
-
     def __str__(self):
         """
-        Returns string format of self for std output.
+        Returns string format of the polynomial for stdout.
 
         :return: string
         """
+        self.__self_validate()
+
         self_len = len(self.coeffs)
         last_index = self_len - 1
 
@@ -242,19 +296,54 @@ class Polynomial:
 
     def __repr__(self):
         """
-        Returns internal representation of self.
+        Returns internal representation of the self.
 
         :return: string
         """
+        self.__self_validate()
+
         return f"Polynomial({self.coeffs})"
 
     def __copy__(self):
         """
-        Returns real copy of self.
+        Returns a real copy of self.
 
         :return: Polynomial
         """
+        self.__self_validate()
+
         return Polynomial(self.coeffs.copy())
+
+    def __getitem__(self, index: int):
+        """
+        Returns the coefficient for a polynomial in powers.
+
+        The return value is a tuple of 2 integers:
+        the first element is the coefficient, the second is the degree corresponding to the coefficient.
+
+        :param index: int
+        :return: tuple(int, int)
+        """
+        self.__self_validate()
+
+        last_index = len(self.coeffs) - 1
+        if not -1 < index < last_index:
+            raise IndexError(f"Out of range for this {self.__repr__()} with length {len(self.coeffs)}: {index}")
+        return self.coeffs[last_index - index], index
+
+    def __self_validate(self):
+        """
+        Checking own coefficients to find list, empty list for own coefficients.
+
+        Throws an AttributeError exception if the coefficients are: not a list, not a list of ints, an empty list.
+
+        :return: None
+        """
+
+        if not self.coeffs:
+            raise AttributeError(f"Polynomial: Self coeffs is not valid: empty list of coeffs")
+        if not isinstance(self.coeffs, list) or not isinstance(self.coeffs[0], int):
+            raise AttributeError(f"Polynomial: Self coeffs is not valid: {type(self.coeffs)})")
 
     def __trim(self):
         """
@@ -262,6 +351,8 @@ class Polynomial:
 
         :return: None
         """
+        self.__self_validate()
+
         index = 0
         last_index = len(self.coeffs) - 1
         while (index < last_index) and (self.coeffs[index] == 0):

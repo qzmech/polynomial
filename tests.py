@@ -276,6 +276,63 @@ class TestPolynomialOperations(unittest.TestCase):
         polynomial1.coeffs.append(42)
         self.assertNotEqual(polynomial1.coeffs, polynomial2.coeffs)
 
+    def testOperationsOperatorsDoesntChangeSelfAddition(self):
+        polynomial1 = Polynomial([1, 2, 3])
+        polynomial2 = Polynomial([3, 2, 1])
+        polynomial3 = polynomial1 + polynomial2
+        self.assertEqual(polynomial1.coeffs, [1, 2, 3])
+        self.assertEqual(polynomial2.coeffs, [3, 2, 1])
+
+    def testOperationsOperatorsDoesntChangeSelfSubtraction(self):
+        polynomial1 = Polynomial([1, 2, 3])
+        polynomial2 = Polynomial([3, 2, 1])
+        polynomial3 = polynomial1 - polynomial2
+        self.assertEqual(polynomial1.coeffs, [1, 2, 3])
+        self.assertEqual(polynomial2.coeffs, [3, 2, 1])
+
+    def testOperationsOperatorsDoesntChangeSelfMultiplication(self):
+        polynomial1 = Polynomial([1, 2, 3])
+        polynomial2 = Polynomial([3, 2, 1])
+        polynomial3 = polynomial1 * polynomial2
+        self.assertEqual(polynomial1.coeffs, [1, 2, 3])
+        self.assertEqual(polynomial2.coeffs, [3, 2, 1])
+
+    def testOperationsGetItemPolynomial1(self):
+        polynomial = Polynomial([1, 2, 3])
+        self.assertEqual(polynomial[0], (3, 0))
+
+    def testOperationsGetItemPolynomial2(self):
+        polynomial = Polynomial([1, 2, 3])
+        self.assertEqual(polynomial[1], (2, 1))
+
+    def testOperationsGetItemPolynomial3(self):
+        with self.assertRaises(IndexError):
+            polynomial = Polynomial([1, 2, 3])
+            result = polynomial[-1]
+
+    def testOperationsGetItemPolynomial4(self):
+        with self.assertRaises(IndexError):
+            polynomial = Polynomial([1, 2, 3])
+            result = polynomial[4]
+
+    def testOperationsSelfValidation1(self):
+        with self.assertRaises(AttributeError):
+            polynomial = Polynomial([1, 2, 3])
+            polynomial.coeffs = []
+            str = f"{polynomial}"
+
+    def testOperationsSelfValidation2(self):
+        with self.assertRaises(AttributeError):
+            polynomial = Polynomial([1, 2, 3])
+            polynomial.coeffs = ()
+            str = f"{polynomial}"
+
+    def testOperationsSelfValidation3(self):
+        with self.assertRaises(AttributeError):
+            polynomial = Polynomial([1, 2, 3])
+            polynomial.coeffs = ['1', '2', '3']
+            str = f"{polynomial}"
+
 
 if __name__ == '__main__':
     unittest.main()
