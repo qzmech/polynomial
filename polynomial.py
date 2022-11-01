@@ -44,10 +44,10 @@ class Polynomial:
         :return: Polynomial
         """
         if not isinstance(first, (int, Polynomial)):
-            raise TypeError(f"Polynomial: Wrong first addition argument type: {type(first)}")
+            raise TypeError(f"Polynomial: Wrong type of first argument to add: {type(first)}")
 
         if not isinstance(second, (int, Polynomial)):
-            raise TypeError(f"Polynomial: Wrong second addition argument type: {type(second)}")
+            raise TypeError(f"Polynomial: Wrong type of second argument to add: {type(second)}")
 
         first_coeffs = Polynomial(first).coeffs
         second_coeffs = Polynomial(second).coeffs
@@ -59,10 +59,10 @@ class Polynomial:
         if coeffs_diff > 0:
             second_coeffs = ([0] * abs(coeffs_diff)) + second_coeffs
 
-        for index in range(len(first_coeffs)):
-            second_coeff = second_coeffs[index]
+        for index, second_coeff in enumerate(second_coeffs):
             if second_coeff != 0:
                 first_coeffs[index] += second_coeff
+
         return Polynomial(first_coeffs)
 
     @staticmethod
@@ -75,10 +75,10 @@ class Polynomial:
         :return: Polynomial
         """
         if not isinstance(first, (int, Polynomial)):
-            raise TypeError(f"Polynomial: Wrong first addition argument type: {type(first)}")
+            raise TypeError(f"Polynomial: Wrong type of first argument to subtract: {type(first)}")
 
         if not isinstance(second, (int, Polynomial)):
-            raise TypeError(f"Polynomial: Wrong second addition argument type: {type(second)}")
+            raise TypeError(f"Polynomial: Wrong type of second argument to subtract: {type(second)}")
 
         first_coeffs = Polynomial(first).coeffs
         second_coeffs = Polynomial(second).coeffs
@@ -90,10 +90,10 @@ class Polynomial:
         if coeffs_diff > 0:
             second_coeffs = ([0] * abs(coeffs_diff)) + second_coeffs
 
-        for index in range(len(first_coeffs)):
-            second_coeff = second_coeffs[index]
+        for index, second_coeff in enumerate(second_coeffs):
             if second_coeff != 0:
                 first_coeffs[index] -= second_coeff
+
         return Polynomial(first_coeffs)
 
     @staticmethod
@@ -106,10 +106,10 @@ class Polynomial:
         :return: Polynomial
         """
         if not isinstance(first, (int, Polynomial)):
-            raise TypeError(f"Polynomial: Wrong first addition argument type: {type(first)}")
+            raise TypeError(f"Polynomial: Wrong type of first argument for multiplication: {type(first)}")
 
         if not isinstance(second, (int, Polynomial)):
-            raise TypeError(f"Polynomial: Wrong second addition argument type: {type(second)}")
+            raise TypeError(f"Polynomial: Wrong type of second argument for multiplication: {type(second)}")
 
         first_coeffs = Polynomial(first).coeffs
         second_coeffs = Polynomial(second).coeffs
@@ -120,8 +120,8 @@ class Polynomial:
         for second_index in range(len(second_coeffs)):
             for first_index in range(len(first_coeffs)):
                 mul_coeffs[first_index + second_index] += first_coeffs[first_index] * second_coeffs[second_index]
-        result = Polynomial(mul_coeffs)
-        return result
+
+        return Polynomial(mul_coeffs)
 
     def add(self, obj):
         """
@@ -246,14 +246,14 @@ class Polynomial:
         self.__self_validate()
 
         if isinstance(obj, int):
-            return (len(self.coeffs) == 1) and (self.coeffs == [obj])
+            return self.coeffs == [obj]
 
         if isinstance(obj, Polynomial):
             obj.__self_validate()
 
             return self.coeffs == obj.coeffs
 
-        raise TypeError(f"Polynomial: Wrong comparison argument type: {type(obj)}")
+        raise TypeError(f"Polynomial: Wrong argument type to compare: {type(obj)}")
 
     def __eq__(self, obj):
         """
@@ -280,17 +280,13 @@ class Polynomial:
 
         result = ""
 
-        for index in range(self_len):
-            coeff = self.coeffs[index]
-            if coeff == 0:
-                continue
+        for index, coeff in enumerate(self.coeffs):
+            if coeff != 0:
+                sign = '-' if (coeff < 0) else '+' if (index > 0) else ''
+                coeff = abs(coeff) if (abs(coeff) != 1) or (index == last_index) else ''
+                power = f"x^{last_index - index}" if (index < last_index - 1) else 'x' if (index < last_index) else ''
 
-            sign = '-' if (coeff < 0) else '+' if (index > 0) else ''
-            coeff = abs(coeff) if (abs(coeff) != 1) or (index == last_index) else ''
-            power = f"^{last_index - index}" if (index < last_index - 1) else ''
-            variable = 'x' if (index < last_index) else ''
-
-            result += f"{sign}{coeff}{variable}{power}"
+                result += f"{sign}{coeff}{power}"
 
         return result
 
@@ -327,7 +323,7 @@ class Polynomial:
         self.__self_validate()
 
         last_index = len(self.coeffs) - 1
-        if not -1 < index < last_index:
+        if not 0 <= index < last_index:
             raise IndexError(f"Out of range for this {self.__repr__()} with length {len(self.coeffs)}: {index}")
         return self.coeffs[last_index - index], index
 
@@ -341,7 +337,7 @@ class Polynomial:
         """
 
         if not self.coeffs:
-            raise AttributeError(f"Polynomial: Self coeffs is not valid: empty list of coeffs")
+            raise AttributeError(f"Polynomial: Self coeffs is not valid: list of coeffs is empty")
         if not isinstance(self.coeffs, list) or not isinstance(self.coeffs[0], int):
             raise AttributeError(f"Polynomial: Self coeffs is not valid: {type(self.coeffs)})")
 
@@ -355,12 +351,8 @@ class Polynomial:
 
         index = 0
         last_index = len(self.coeffs) - 1
+
         while (index < last_index) and (self.coeffs[index] == 0):
             index += 1
 
-        result = list()
-        while index <= last_index:
-            result.append(self.coeffs[index])
-            index += 1
-
-        self.coeffs = result
+        self.coeffs = self.coeffs[index:]
