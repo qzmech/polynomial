@@ -181,19 +181,19 @@ class TestPolynomialArithmetic(unittest.TestCase):
 
     def test_arithmetic_cmp_polynomial_and_const_equals(self):
         polynomial = Polynomial([5])
-        self.assertTrue(polynomial == 5)
+        self.assertEqual(polynomial, 5)
 
     def test_arithmetic_cmp_polynomial_and_const_equals_reverse(self):
         polynomial = Polynomial([5])
-        self.assertTrue(5 == polynomial)
+        self.assertEqual(5, polynomial)
 
     def test_arithmetic_cmp_polynomial_and_const_not_equals_1(self):
         polynomial = Polynomial([8])
-        self.assertFalse(polynomial == 5)
+        self.assertNotEqual(polynomial, 5)
 
     def test_arithmetic_cmp_polynomial_and_const_not_equals_2(self):
         polynomial = Polynomial([5, 1])
-        self.assertFalse(polynomial == 5)
+        self.assertNotEqual(polynomial, 5)
 
 
 if __name__ == '__main__':
