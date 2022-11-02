@@ -38,11 +38,11 @@ class TestPolynomialInit(unittest.TestCase):
             Polynomial({})
 
     def test_init_empty_list(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             Polynomial([])
 
     def test_init_empty_tuple(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             Polynomial(())
 
     def test_init_using_list_without_ints(self):

@@ -11,19 +11,28 @@ class Polynomial:
             self.coeffs = [obj]
             return
 
-        if obj and isinstance(obj, list) and isinstance(obj[0], int):
-            self.coeffs = obj.copy()
-            self.__trim_zeroes()
-            return
+        if isinstance(obj, list):
+            if not obj:
+                raise ValueError(f"Polynomial: Initial argument is empty: {obj}")
 
-        if obj and isinstance(obj, tuple):
+            if isinstance(obj[0], int):
+                self.coeffs = obj.copy()
+                self.__trim_zeroes()
+                return
+
+        if isinstance(obj, tuple):
+            if not obj:
+                raise ValueError(f"Polynomial: Initial argument is empty: {obj}")
+
             valid = True
             self.coeffs = list()
+
             for coeff in obj:
                 if not isinstance(coeff, int):
                     valid = False
                     break
                 self.coeffs.append(coeff)
+
             if valid:
                 self.__trim_zeroes()
                 return
