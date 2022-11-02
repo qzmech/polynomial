@@ -117,9 +117,9 @@ class Polynomial:
         result_power_extension = (len(second_coeffs) - 1)
         mul_coeffs = [0] * (result_power_extension + len(first_coeffs))
 
-        for second_index in range(len(second_coeffs)):
-            for first_index in range(len(first_coeffs)):
-                mul_coeffs[first_index + second_index] += first_coeffs[first_index] * second_coeffs[second_index]
+        for second_index, second_coeff in enumerate(second_coeffs):
+            for first_index, first_coeff in enumerate(first_coeffs):
+                mul_coeffs[first_index + second_index] += first_coeff * second_coeff
 
         return Polynomial(mul_coeffs)
 
@@ -226,11 +226,12 @@ class Polynomial:
         """
         Returns the inverted signs of the eigenvalues.
 
-        :return: bool
+        :return: Polynomial
         """
         self.__self_validate()
 
-        result = Polynomial(self.coeffs.copy())
+        result = Polynomial(self)
+
         for index in range(len(result.coeffs)):
             result.coeffs[index] = - result.coeffs[index]
 
@@ -308,7 +309,7 @@ class Polynomial:
         """
         self.__self_validate()
 
-        return Polynomial(self.coeffs.copy())
+        return Polynomial(self)
 
     def __getitem__(self, index: int):
         """
@@ -323,8 +324,10 @@ class Polynomial:
         self.__self_validate()
 
         last_index = len(self.coeffs) - 1
+
         if not 0 <= index < last_index:
             raise IndexError(f"Out of range for this {self.__repr__()} with length {len(self.coeffs)}: {index}")
+
         return self.coeffs[last_index - index], index
 
     def __self_validate(self):
